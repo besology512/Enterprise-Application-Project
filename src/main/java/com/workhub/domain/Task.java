@@ -3,8 +3,11 @@ package com.workhub.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import org.hibernate.annotations.Filter;
+
 @Entity
 @Table(name = "tasks")
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 @Getter
 @Setter
 @NoArgsConstructor

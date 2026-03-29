@@ -27,6 +27,12 @@ management:
       show-details: always
       probes:
         enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
 
 workhub:
   jwt:

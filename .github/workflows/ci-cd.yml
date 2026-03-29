@@ -33,7 +33,7 @@ jobs:
       - name: Infrastructure Linting (Simulation)
         run: |
           echo "Verifying Docker Compose configuration..."
-          docker-compose config -q
+          docker compose config -q
           
           echo "Verifying Kubernetes manifests (Client-side)..."
           # Use --validate=false to skip server-side schema check in the runner

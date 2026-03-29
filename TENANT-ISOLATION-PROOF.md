@@ -12,7 +12,15 @@ We have moved from manual filtering in the service layer to automated strict iso
 - **Write Isolation**: The AOP aspect ensures that the session is filtered before any repository interaction.
 - **Cross-Tenant Prevention**: If Tenant A tries to access `GET /projects/{id_of_tenant_b}`, the Hibernate filter will result in zero records found, returning a 404/Null effectively at the data layer level.
 
-## Verification Steps
+## Verification
+You can verify this isolation using the **Master Production Verification Suite**:
+
+```powershell
+# This script specifically checks for cross-tenant leaks (P2-01)
+./verify-production.ps1
+```
+
+Or manually:
 1. Create a project `Alpha` under Tenant A.
 2. Attempt to list projects with Tenant B's JWT.
 3. Result: Empty list `[]` (Verified via Phase 2 integration tests).

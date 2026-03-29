@@ -1,60 +1,86 @@
-# WorkHub SaaS Backend - Phase 1 Foundation
+# WorkHub SaaS Enterprise Backend
 
-WorkHub is a multi-tenant project management SaaS backend built with Spring Boot.
+[![Build Status](https://github.com/besology512/Enterprise-Application-Project/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/besology512/Enterprise-Application-Project/actions)
 
-## Features (Phase 1)
-- **Clean Layering**: controller -> service -> repository.
-- **JWT Authentication**: Login and identity retrieval.
-- **Tenant Isolation**: Automatic tenant context extraction from JWT.
-- **Transactional Rollback**: Demonstrated in project creation.
-- **DTO Validation**: Standardized error responses.
-- **Observability**: Spring Actuator enabled.
+WorkHub is a production-ready, multi-tenant project management SaaS backend built with **Java 17** and **Spring Boot 3.2.4**. It is designed for high scalability, strict tenant isolation, and cloud-native observability.
 
-## How to Run Locally
+---
 
-### Prerequisites
-- Java 17+
-- Maven
-- PostgreSQL (or use H2 for quick testing by changing `application.yml`)
+## 🚀 Project Status: FINAL (Phases 1-3 Complete)
 
-### Steps
-1. **Clone the repository**.
-2. **Configure Database**: Update `src/main/resources/application.yml` with your PostgreSQL credentials.
-3. **Build and Run**:
-   ```bash
-   mvn spring-boot:run
-   ```
-4. **Initial Data**: The application automatically seeds two tenants and two admin users:
-   - **Tenant A**: `admin@tenantA.com` / `password`
-   - **Tenant B**: `admin@tenantB.com` / `password`
+This project has evolved through three major hardening phases, transitioning from a foundation to a cloud-ready enterprise system.
 
-## API Endpoints
+### Phase 1: Foundation Release
+- **Layered Architecture**: Clean separation between controllers, services, and repositories.
+- **JWT Authentication**: Stateless security with role-based access control (RBAC).
+- **Multi-Tenancy**: Shared-database, shared-schema foundation.
 
-### Auth
-- `POST /auth/login`: Authenticate and get JWT + tenantId.
-- `GET /auth/me`: Get current user details.
+### Phase 2: SaaS Hardening
+- **Strict Tenant Isolation**: Automated protection via **Hibernate `@Filter`** and **AOP (`TenantAspect`)**. Zero-leak guarantee at the DB layer.
+- **Messaging Workflows**: Integrated **RabbitMQ** for decoupled, asynchronous report generation.
+- **Distributed Tracing**: Implementation of `CorrelationFilter` for end-to-end trace propagation (MDC).
+- **Concurrency Safety**: Optimistic locking using JPA `@Version` on `Task` entities.
 
-### Projects
-- `POST /projects`: Create a project (and optionally initial tasks).
-- `GET /projects`: List all projects for the current tenant.
-- `GET /projects/{id}`: Get project by ID (tenant-isolated).
+### Phase 3: Cloud-Native Delivery & IaC
+- **Orchestration**: Production-grade **Kubernetes (K8s)** manifests for self-healing and scaling.
+- **Observability**: Integrated **Prometheus** metrics export and custom health probes (Liveness/Readiness).
+- **CI/CD**: Automated GitHub Actions pipeline for building and validating deployments.
 
-### Tasks
-- `PATCH /tasks/{id}?status=DONE`: Update task status.
+---
 
-## Transaction Rollback Demonstration
-To see the transaction rollback in action:
-- Send a `POST` request to `/projects` with an initial task named `"fail"`.
-- Example Request:
-  ```json
-  {
-    "name": "Failing Project",
-    "initialTasks": ["task1", "fail"]
-  }
-  ```
-- The API will return a 500 error.
-- Check the database: no "Failing Project" will be created, demonstrating that the entire operation rolled back.
+## 🛠 Tech Stack
+- **Languages**: Java 17, SQL.
+- **Framework**: Spring Boot 3.2.4 (Security, Data JPA, AOP, AMQP).
+- **Database**: PostgreSQL.
+- **Messaging**: RabbitMQ.
+- **Infrastructure**: Docker, Docker-Compose, Kubernetes (Minikube/Cloud).
+- **Monitoring**: Spring Actuator, Prometheus, Micrometer.
 
-## Observability
-- Health: `http://localhost:8080/actuator/health`
-- Metrics: `http://localhost:8080/actuator/metrics`
+---
+
+## 📦 How to Run Locally
+
+### Using Docker-Compose (Recommended)
+The fastest way to start the entire stack (App, DB, RabbitMQ):
+```bash
+docker-compose up -d --build
+```
+The application will be available at `http://localhost:8081`.
+
+### Pre-seeded Accounts
+Two tenants are automatically seeded for testing:
+- **Tenant A (Admin)**: `admin@tenantA.com` / `password`
+- **Tenant B (Admin)**: `admin@tenantB.com` / `password`
+
+---
+
+## ✅ Verification & Auditing (Master Suite)
+
+We provide a **Universal Production Verification Suite** that audits for data leaks, messaging health, and observability:
+
+```powershell
+# Run the audit against your local Docker-Compose setup
+./verify-production.ps1 -BaseUrl "http://localhost:8081"
+```
+
+Refer to the [**DEPLOYMENT-GUIDE.md**](./DEPLOYMENT-GUIDE.md) for remote server auditing.
+
+---
+
+## 📂 Documentation Guides
+- [**Deployment Guide**](./DEPLOYMENT-GUIDE.md): Transitioning to production servers and K8s.
+- [**Tenant Isolation Proof**](./TENANT-ISOLATION-PROOF.md): How our AOP-based filter prevents data leaks.
+- [**Observability Guide**](./OBSERVABILITY.md): How to use Prometheus and Correlation IDs.
+
+---
+
+## 👥 Team Collaboration
+To maintain a clean workflow:
+1. **`main` Branch**: Reserved for the foundational Spring Boot setup. NO Phase 1-3 code here.
+2. **`bassam-learning` Branch**: Contains the complete, hardened implementation.
+3. **New Features**: All team members should branch off `main` for their respective feature development.
+
+---
+
+## 📜 License
+This project is for educational purposes at **Senior Year Enterprise Application Course**.

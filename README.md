@@ -13,6 +13,3 @@ This repository is for the WorkHub SaaS backend, an enterprise-grade project man
 2. Ensure Docker is running.
 3. Run `docker-compose up -d`.
 4. Build the project using Maven: `./mvnw clean install` (or use IntelliJ/Eclipse).
-
-## Phase 1 & 2 Implementation
-For the full implementation of multi-tenancy, strict isolation, and messaging, please switch to the `bassam-learning` branch.

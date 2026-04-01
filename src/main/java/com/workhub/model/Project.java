@@ -27,9 +27,6 @@ public class Project {
     private ProjectStatus status;
 
     @Column(nullable = false)
-    private String budget;
-
-    @Column(nullable = false)
     private String category;
 
     @Column(nullable = false)

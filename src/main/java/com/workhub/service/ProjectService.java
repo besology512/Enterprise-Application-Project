@@ -31,7 +31,14 @@ public class ProjectService {
     }
 
     public Optional<Project> getProjectById(Long id) {
-        return projectRepository.findById(id);
+        Optional<Project> project = projectRepository.findById(id);
+
+        // STRICT TENANT ISOLATION CHECK
+        if (project.isPresent() && !project.get().getTenantId().equals(TenantContext.getTenantId())) {
+            throw new RuntimeException("Access Denied: This project belongs to another tenant.");
+        }
+
+        return project;
     }
 
     @Transactional

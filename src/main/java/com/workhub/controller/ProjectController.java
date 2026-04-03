@@ -1,6 +1,7 @@
 package com.workhub.controller;
 
 import com.workhub.model.Project;
+import com.workhub.dto.ProjectCreationRequest;
 import com.workhub.service.ProjectService;
 import com.workhub.service.TaskService;
 import com.workhub.model.Task;
@@ -41,6 +42,16 @@ public class ProjectController {
             return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/with-tasks")
+    public ResponseEntity<Project> createProjectWithTasks(@RequestBody ProjectCreationRequest request) {
+        try {
+            Project createdProject = projectService.createProjectWithTasks(request.getProject(), request.getTasks());
+            return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }

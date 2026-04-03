@@ -2,6 +2,8 @@ package com.workhub.controller;
 
 import com.workhub.model.Project;
 import com.workhub.service.ProjectService;
+import com.workhub.service.TaskService;
+import com.workhub.model.Task;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProjectController {
     private final ProjectService projectService;
+    private final TaskService taskService;
 
     @PostMapping
     public ResponseEntity<Project> createProject(@RequestBody Project p) {
@@ -29,5 +32,15 @@ public class ProjectController {
     @GetMapping("/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
         return projectService.getProjectById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{id}/tasks")
+    public ResponseEntity<Task> createTaskforProject(@PathVariable Long id, @RequestBody Task task) {
+        try {
+            Task createdTask = taskService.createTask(id, task);
+            return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

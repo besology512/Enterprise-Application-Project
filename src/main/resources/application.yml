@@ -2,15 +2,26 @@ spring:
   application:
     name: workhub-saas
   datasource:
-    url: jdbc:postgresql://localhost:5432/workhub
-    username: postgres
-    password: password
+    url: jdbc:h2:mem:workhubdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: create-drop
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
   rabbitmq:
     host: localhost
     port: 5672
     username: guest
     password: guest
+app:
+  jwtSecret: 9a4f2c8d3b7a1e6f4c5b8a9d2e7f1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9
+  jwtExpirationMs: 86400000
+
+server:
+  port: 8080

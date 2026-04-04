@@ -1,20 +1,11 @@
 package com.workhub.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter @Setter
+@Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class JwtResponse {
-    private String token;
-    private String type = "Bearer";
+    private String accessToken;
     private Long tenantId;
-
-    public JwtResponse(String token, Long tenantId) {
-        this.token = token;
-        this.tenantId = tenantId;
-    }
 }

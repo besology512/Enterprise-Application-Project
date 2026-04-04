@@ -30,11 +30,19 @@ The project is fully documented using OpenAPI 3. You can explore the API using t
 | `user@tenantA.com` | `password` | `TENANT_USER` | Tenant A (FREE) |
 | `admin@tenantB.com` | `password` | `TENANT_ADMIN` | Tenant B (PREMIUM) |
 
-### 🛠️ Getting Started
+## How to run locally
 1. Clone the repository.
-2. Build and run the project using Maven:
-   ```bash
-   mvn clean spring-boot:run
-   ```
-3. Use the **Swagger "Authorize"** button to paste your Bearer token and test protected endpoints like `/auth/me`.
+```bash
+git clone https://github.com/besology512/Enterprise-Application-Project.git
+```
+2. Build the application archive: 
+```bash
+mvn clean package -DskipTests
+```
+3. Ensure ports availability: Ensure that no local instance of PostgreSQL is running on port 5432
 
+4. Run with docker compose:
+```
+docker-compose up --build
+```
+5. Verify that the app is running via Postman by testing the endpoints. (base URL: localhost:8081)

@@ -1,20 +1,23 @@
-package com.workhub.domain;
+package com.workhub.model;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Builder
+@Table(name = "tenants")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter @Setter
+@Builder
 public class Tenant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
+    @Column(unique = true, nullable = false)
     private String name;
-    
+
     @Enumerated(EnumType.STRING)
     private Plan plan;
 

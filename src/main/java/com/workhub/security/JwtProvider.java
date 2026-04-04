@@ -2,52 +2,71 @@ package com.workhub.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.function.Function;
 
 @Component
 public class JwtProvider {
-    private static final Logger logger = LoggerFactory.getLogger(JwtProvider.class);
 
-    @Value("${app.jwtSecret:9a4f2c8d3b7a1e6f4c5b8a9d2e7f1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9}")
+    @Value("${workhub.jwt.secret}")
     private String jwtSecret;
 
-    @Value("${app.jwtExpirationMs:86400000}")
-    private int jwtExpirationMs;
+    @Value("${workhub.jwt.expiration}")
+    private long jwtExpirationInMs;
 
-    public String generateToken(String email, Long tenantId) {
-        logger.info("Generating token for: {} with tenantId: {}", email, tenantId);
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    public String generateToken(Authentication authentication, Long tenantId) {
+        UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
+
         return Jwts.builder()
-                .setSubject(email)
+                .subject(userPrincipal.getUsername())
                 .claim("tenantId", tenantId)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .issuedAt(new Date())
+                .expiration(new Date(new Date().getTime() + jwtExpirationInMs))
+                .signWith(getSigningKey())
                 .compact();
     }
 
-    public String getEmailFromToken(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-        return Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token).getBody().getSubject();
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    public boolean validateToken(String authToken) {
+    public String getUsernameFromToken(String token) {
+        return getClaimFromToken(token, Claims::getSubject);
+    }
+
+    public Long getTenantIdFromToken(String token) {
+        final Claims claims = getAllClaimsFromToken(token);
+        return claims.get("tenantId", Long.class);
+    }
+
+    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = getAllClaimsFromToken(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims getAllClaimsFromToken(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    public boolean validateToken(String token) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
-            logger.info("Token validated for: {}", getEmailFromToken(authToken));
+            Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            logger.error("Invalid JWT token: {}", e.getMessage());
+            return false;
         }
-        return false;
     }
 }

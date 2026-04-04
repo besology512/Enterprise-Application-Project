@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/projects")
@@ -23,7 +24,7 @@ public class ProjectController {
     private final JobService jobService;
 
     @PostMapping
-    public ResponseEntity<Project> createProject(@RequestBody Project p) {
+    public ResponseEntity<Project> createProject(@Valid @RequestBody Project p) {
         Project createdProj = projectService.createProject(p);
         return new ResponseEntity<>(createdProj, HttpStatus.CREATED);
     }
@@ -36,29 +37,24 @@ public class ProjectController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
-        return projectService.getProjectById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        Project project = projectService.getProjectById(id)
+                .orElseThrow(() -> new com.workhub.exception.ResourceNotFoundException("Project not found"));
+        return ResponseEntity.ok(project);
     }
 
     @PostMapping("/{id}/tasks")
-    public ResponseEntity<Task> createTaskforProject(@PathVariable Long id, @RequestBody Task task) {
-        try {
-            Task createdTask = taskService.createTask(id, task);
-            return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Task> createTaskforProject(@PathVariable Long id, @Valid @RequestBody Task task) {
+        Task createdTask = taskService.createTask(id, task);
+        return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }
 
     @PostMapping("/with-tasks")
-    public ResponseEntity<Project> createProjectWithTasks(@RequestBody ProjectCreationRequest request) {
-        try {
-            Project createdProject = projectService.createProjectWithTasks(request.getProject(), request.getTasks());
-            return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
+    public ResponseEntity<Project> createProjectWithTasks(@Valid @RequestBody ProjectCreationRequest request) {
 
+        Project createdProject = projectService.createProjectWithTasks(request.getProject(), request.getTasks());
+        return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
+    }
+  
     @PostMapping("/{id}/generate-report")
     public ResponseEntity<Job> generateReport(
             @PathVariable Long id,
@@ -69,3 +65,4 @@ public class ProjectController {
         return new ResponseEntity<>(job, HttpStatus.ACCEPTED);
     }
 }
+

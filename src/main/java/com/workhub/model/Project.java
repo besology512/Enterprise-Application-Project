@@ -1,8 +1,11 @@
 package com.workhub.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 
 @Entity
 @Table(name = "projects")
@@ -16,16 +19,20 @@ public class Project {
     @Column(nullable = false)
     private String tenantId;
 
+    @NotBlank(message = "Project name is required")
     @Column(nullable = false)
     private String name;
 
+    @NotBlank(message = "Description cannot be empty")
     @Column(nullable = false)
     private String description;
 
+    @NotNull(message = "Project status is required")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProjectStatus status;
 
+    @NotBlank(message = "Category is required")
     @Column(nullable = false)
     private String category;
 
@@ -34,4 +41,7 @@ public class Project {
 
     @Column(nullable = false)
     private String createdAt;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Task> tasks;
 }

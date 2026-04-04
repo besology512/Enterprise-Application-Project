@@ -54,15 +54,16 @@ public class ProjectController {
         Project createdProject = projectService.createProjectWithTasks(request.getProject(), request.getTasks());
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
-  
+
     @PostMapping("/{id}/generate-report")
     public ResponseEntity<Job> generateReport(
             @PathVariable Long id,
-            @RequestAttribute("tenantId") String tenantId,
-            @RequestBody JobRequest request
-            ) {
+            @RequestBody JobRequest request) {
+        String tenantId = com.workhub.tenant.TenantContext.getTenantId();
+
+        projectService.getProjectById(id).orElseThrow(() -> new com.workhub.exception.ResourceNotFoundException("Project not found"));
+
         Job job = jobService.createReportJob(id, tenantId, request);
         return new ResponseEntity<>(job, HttpStatus.ACCEPTED);
     }
 }
-

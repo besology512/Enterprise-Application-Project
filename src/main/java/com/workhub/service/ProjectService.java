@@ -45,16 +45,24 @@ public class ProjectService {
     @Transactional
     public Project createProjectWithTasks(Project project, List<Task> tasks) {
         project.setTenantId(TenantContext.getTenantId());
+
+        // 1. Initialize the tasks list in the project object to avoid NullPointerException
+        project.setTasks(new java.util.ArrayList<>());
+
         Project savedProject = projectRepository.save(project);
 
         if (tasks != null && !tasks.isEmpty()) {
             for (Task t : tasks) {
                 if ("FAIL".equals(t.getTitle())) {
-                    // Triggers the 400 Bad Request in the global handler
                     throw new IllegalArgumentException("Task title cannot be FAIL");
                 }
+
                 t.setProject(savedProject);
                 taskRepository.save(t);
+
+                // 2. CRITICAL STEP: Add the task to the Project's internal list
+                // This ensures the Java object we return matches what's in the database
+                savedProject.getTasks().add(t);
             }
         }
 

@@ -26,14 +26,19 @@ public class TaskService {
         Task existingTask = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-        // STRICT TENANT ISOLATION CHECK
         if (!existingTask.getProject().getTenantId().equals(TenantContext.getTenantId())) {
             throw new TenantAccessException("Access Denied: This task belongs to another tenant.");
         }
 
-        existingTask.setTitle(taskUpdates.getTitle());
-        existingTask.setDescription(taskUpdates.getDescription());
-        existingTask.setStatus(taskUpdates.getStatus());
+        if (taskUpdates.getTitle() != null) {
+            existingTask.setTitle(taskUpdates.getTitle());
+        }
+        if (taskUpdates.getDescription() != null) {
+            existingTask.setDescription(taskUpdates.getDescription());
+        }
+        if (taskUpdates.getStatus() != null) {
+            existingTask.setStatus(taskUpdates.getStatus());
+        }
         return taskRepository.save(existingTask);
     }
 }

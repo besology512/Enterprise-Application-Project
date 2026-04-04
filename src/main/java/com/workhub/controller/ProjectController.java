@@ -33,26 +33,21 @@ public class ProjectController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
-        return projectService.getProjectById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        Project project = projectService.getProjectById(id)
+                .orElseThrow(() -> new com.workhub.exception.ResourceNotFoundException("Project not found"));
+        return ResponseEntity.ok(project);
     }
 
     @PostMapping("/{id}/tasks")
-    public ResponseEntity<Task> createTaskforProject(@PathVariable Long id,@Valid @RequestBody Task task) {
-        try {
-            Task createdTask = taskService.createTask(id, task);
-            return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Task> createTaskforProject(@PathVariable Long id, @Valid @RequestBody Task task) {
+        Task createdTask = taskService.createTask(id, task);
+        return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }
 
     @PostMapping("/with-tasks")
     public ResponseEntity<Project> createProjectWithTasks(@Valid @RequestBody ProjectCreationRequest request) {
-        try {
-            Project createdProject = projectService.createProjectWithTasks(request.getProject(), request.getTasks());
-            return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+
+        Project createdProject = projectService.createProjectWithTasks(request.getProject(), request.getTasks());
+        return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
 }

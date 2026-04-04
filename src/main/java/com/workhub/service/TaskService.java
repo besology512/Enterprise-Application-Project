@@ -1,5 +1,7 @@
 package com.workhub.service;
 
+import com.workhub.exception.ResourceNotFoundException;
+import com.workhub.exception.TenantAccessException;
 import com.workhub.model.Project;
 import com.workhub.model.Task;
 import com.workhub.repository.TaskRepository;
@@ -14,21 +16,19 @@ public class TaskService {
     private final ProjectService projectService;
 
     public Task createTask(Long projectId, Task task) {
-        // This will naturally use the patched getProjectById, so the tenant check happens automatically here too!
         Project project = projectService.getProjectById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         task.setProject(project);
         return taskRepository.save(task);
     }
 
     public Task updateTask(Long taskId, Task taskUpdates) {
         Task existingTask = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         // STRICT TENANT ISOLATION CHECK
-        // Validate that the task's parent project belongs to the currently authenticated tenant
         if (!existingTask.getProject().getTenantId().equals(TenantContext.getTenantId())) {
-            throw new RuntimeException("Access Denied: This task belongs to another tenant.");
+            throw new TenantAccessException("Access Denied: This task belongs to another tenant.");
         }
 
         existingTask.setTitle(taskUpdates.getTitle());

@@ -1,5 +1,6 @@
 package com.workhub.service;
 
+import com.workhub.exception.TenantAccessException;
 import com.workhub.model.Project;
 import com.workhub.model.Task;
 import com.workhub.repository.ProjectRepository;
@@ -35,7 +36,7 @@ public class ProjectService {
 
         // STRICT TENANT ISOLATION CHECK
         if (project.isPresent() && !project.get().getTenantId().equals(TenantContext.getTenantId())) {
-            throw new RuntimeException("Access Denied: This project belongs to another tenant.");
+            throw new TenantAccessException("Access Denied: This project belongs to another tenant.");
         }
 
         return project;
@@ -49,7 +50,8 @@ public class ProjectService {
         if (tasks != null && !tasks.isEmpty()) {
             for (Task t : tasks) {
                 if ("FAIL".equals(t.getTitle())) {
-                    throw new RuntimeException("Task title cannot be FAIL");
+                    // Triggers the 400 Bad Request in the global handler
+                    throw new IllegalArgumentException("Task title cannot be FAIL");
                 }
                 t.setProject(savedProject);
                 taskRepository.save(t);

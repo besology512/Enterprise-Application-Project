@@ -6,6 +6,9 @@ import com.workhub.dto.LoginRequest;
 import com.workhub.dto.UserResponse;
 import com.workhub.repository.UserRepository;
 import com.workhub.security.JwtProvider;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication", description = "Endpoints for user login and profile retrieval")
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -31,6 +35,7 @@ public class AuthController {
     private UserRepository userRepository;
 
     @PostMapping("/login")
+    @Operation(summary = "Authenticate user and return JWT", description = "Login with email and password to receive a JWT containing the tenantId.")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
@@ -44,6 +49,7 @@ public class AuthController {
     }
 
     @GetMapping("/me")
+    @Operation(summary = "Get current authenticated user profile", description = "Returns the profile of the currently logged-in user.", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();

@@ -68,4 +68,21 @@ public class ProjectService {
 
         return savedProject;
     }
+
+    @Transactional
+    public Project createProjectWithTasks(Project project, List<Task> tasks) {
+        Project savedProject = projectRepository.save(project);
+
+        if (tasks != null && !tasks.isEmpty()) {
+            for (Task t : tasks) {
+                if ("FAIL".equals(t.getTitle())) {
+                    throw new RuntimeException("Task title cannot be FAIL");
+                }
+                t.setProject(savedProject);
+                taskRepository.save(t);
+            }
+        }
+
+        return savedProject;
+    }
 }

@@ -1,7 +1,10 @@
 package com.workhub.controller;
 
+import com.workhub.dto.JobRequest;
+import com.workhub.model.Job;
 import com.workhub.model.Project;
 import com.workhub.dto.ProjectCreationRequest;
+import com.workhub.service.JobService;
 import com.workhub.service.ProjectService;
 import com.workhub.service.TaskService;
 import com.workhub.model.Task;
@@ -18,6 +21,7 @@ import jakarta.validation.Valid;
 public class ProjectController {
     private final ProjectService projectService;
     private final TaskService taskService;
+    private final JobService jobService;
 
     @PostMapping
     public ResponseEntity<Project> createProject(@Valid @RequestBody Project p) {
@@ -50,4 +54,15 @@ public class ProjectController {
         Project createdProject = projectService.createProjectWithTasks(request.getProject(), request.getTasks());
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
+  
+    @PostMapping("/{id}/generate-report")
+    public ResponseEntity<Job> generateReport(
+            @PathVariable Long id,
+            @RequestAttribute("tenantId") String tenantId,
+            @RequestBody JobRequest request
+            ) {
+        Job job = jobService.createReportJob(id, tenantId, request);
+        return new ResponseEntity<>(job, HttpStatus.ACCEPTED);
+    }
 }
+

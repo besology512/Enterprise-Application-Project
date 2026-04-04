@@ -1,6 +1,6 @@
 package com.workhub.security;
 
-import com.workhub.domain.User;
+import com.workhub.model.User;
 import com.workhub.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

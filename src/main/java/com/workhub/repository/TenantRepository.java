@@ -1,6 +1,6 @@
 package com.workhub.repository;
 
-import com.workhub.domain.Tenant;
+import com.workhub.model.Tenant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

@@ -19,16 +19,18 @@ public class TaskService {
         Project project = projectService.getProjectById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         task.setProject(project);
+        task.setTenantId(TenantContext.getTenantId());
         return taskRepository.save(task);
     }
 
-    public Task updateTask(Long taskId, Task taskUpdates) {
-        Task existingTask = taskRepository.findById(taskId)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+    public java.util.List<Task> getAllTasks() {
+        return taskRepository.findByTenantId(TenantContext.getTenantId());
+    }
 
-        if (!existingTask.getProject().getTenantId().equals(TenantContext.getTenantId())) {
-            throw new TenantAccessException("Access Denied: This task belongs to another tenant.");
-        }
+    public Task updateTask(Long taskId, Task taskUpdates) {
+        String currentTenant = TenantContext.getTenantId();
+        Task existingTask = taskRepository.findByIdAndTenantId(taskId, currentTenant)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         if (taskUpdates.getTitle() != null) {
             existingTask.setTitle(taskUpdates.getTitle());

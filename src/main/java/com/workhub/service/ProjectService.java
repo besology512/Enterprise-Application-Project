@@ -35,13 +35,8 @@ public class ProjectService {
     }
 
     public Optional<Project> getProjectById(Long id) {
-        Optional<Project> project = projectRepository.findById(id);
-
-        if (project.isPresent() && !project.get().getTenantId().equals(TenantContext.getTenantId())) {
-            throw new TenantAccessException("Access Denied: This project belongs to another tenant.");
-        }
-
-        return project;
+        String currentTenant = TenantContext.getTenantId();
+        return projectRepository.findByIdAndTenantId(id, currentTenant);
     }
 
     @Transactional
@@ -62,6 +57,7 @@ public class ProjectService {
                 }
 
                 t.setProject(savedProject);
+                t.setTenantId(TenantContext.getTenantId());
                 taskRepository.save(t);
 
                 savedProject.getTasks().add(t);

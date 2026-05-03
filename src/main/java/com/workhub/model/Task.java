@@ -20,6 +20,9 @@ public class Task {
     @Column(nullable = false)
     private String title;
 
+    @Column(nullable = false)
+    private String tenantId;
+
     @NotBlank(message = "Task description is required")
     @Column(nullable = false)
     private String description;

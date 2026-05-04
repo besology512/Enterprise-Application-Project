@@ -35,24 +35,29 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleNotFoundExceptions(ResourceNotFoundException ex) {
         return new ResponseEntity<>(
                 buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage()),
-                HttpStatus.NOT_FOUND
-        );
+                HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(TenantAccessException.class)
     public ResponseEntity<Map<String, Object>> handleTenantAccessExceptions(TenantAccessException ex) {
         return new ResponseEntity<>(
                 buildErrorResponse(HttpStatus.FORBIDDEN, ex.getMessage()),
-                HttpStatus.FORBIDDEN
-        );
+                HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleBusinessLogicExceptions(IllegalArgumentException ex) {
         return new ResponseEntity<>(
                 buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage()),
-                HttpStatus.BAD_REQUEST
-        );
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDeniedException(
+            org.springframework.security.access.AccessDeniedException ex) {
+        return new ResponseEntity<>(
+                buildErrorResponse(HttpStatus.FORBIDDEN, "Access Denied: " + ex.getMessage()),
+                HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)
@@ -60,8 +65,7 @@ public class GlobalExceptionHandler {
         log.error("Unhandled application exception", ex);
         return new ResponseEntity<>(
                 buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred"),
-                HttpStatus.INTERNAL_SERVER_ERROR
-        );
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private Map<String, Object> buildErrorResponse(HttpStatus status, String message) {

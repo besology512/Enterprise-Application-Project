@@ -66,9 +66,8 @@ public class ProjectController {
         return new ResponseEntity<>(job, HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/{projectId}/jobs/{jobId}")
+    @GetMapping("/jobs/{jobId}")
     public ResponseEntity<Job> getJobStatus(
-            @PathVariable Long projectId,
             @PathVariable Long jobId) {
         Job job = jobService.getJobStatus(jobId);
         return ResponseEntity.ok(job);

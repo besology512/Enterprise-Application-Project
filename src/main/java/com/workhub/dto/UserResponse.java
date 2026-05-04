@@ -1,6 +1,6 @@
 package com.workhub.dto;
 
-import com.workhub.model.User; // Updated to import from model
+import com.workhub.model.User;
 import lombok.Data;
 import java.util.Set;
 

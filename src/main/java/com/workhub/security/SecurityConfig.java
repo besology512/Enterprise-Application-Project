@@ -1,6 +1,6 @@
 package com.workhub.security;
 
-import com.workhub.tenant.TenantFilter; // Imported your filter!
+import com.workhub.tenant.TenantFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,15 +27,21 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configure(http)) // Ensure CORS doesn't block you
+                .cors(cors -> cors.configure(http))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers(
+                                "/actuator/health",
+                                "/actuator/health/**",
+                                "/actuator/metrics",
+                                "/actuator/metrics/**",
+                                "/actuator/prometheus"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 );
 
-        // This MUST be here to pick up the user from your token
         http.addFilterBefore(tenantFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -48,7 +54,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Requirement says password hash or simplified. Using NoOp for simplicity as it's Phase 1.
         return NoOpPasswordEncoder.getInstance();
     }
 }

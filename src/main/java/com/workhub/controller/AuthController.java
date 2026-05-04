@@ -1,9 +1,9 @@
-package com.workhub.controller; // Changed to fit your structure
+package com.workhub.controller;
 
-import com.workhub.model.User; // Changed from domain to model
 import com.workhub.dto.JwtResponse;
 import com.workhub.dto.LoginRequest;
 import com.workhub.dto.UserResponse;
+import com.workhub.model.User;
 import com.workhub.repository.UserRepository;
 import com.workhub.security.JwtProvider;
 import jakarta.validation.Valid;

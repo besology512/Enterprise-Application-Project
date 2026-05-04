@@ -58,8 +58,10 @@ public class ProjectController {
     @PostMapping("/{id}/generate-report")
     public ResponseEntity<Job> generateReport(
             @PathVariable Long id,
-            @RequestBody JobRequest request
-            ) {
+            @RequestBody JobRequest request) {
+        projectService.getProjectById(id)
+                .orElseThrow(() -> new com.workhub.exception.ResourceNotFoundException("Project not found"));
+
         Job job = jobService.createReportJob(id, request);
         return new ResponseEntity<>(job, HttpStatus.ACCEPTED);
     }

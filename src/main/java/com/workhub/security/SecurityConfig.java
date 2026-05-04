@@ -30,7 +30,14 @@ public class SecurityConfig {
                 .cors(cors -> cors.configure(http)) // Ensure CORS doesn't block you
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers(
+                                "/auth/login",
+                                "/actuator/health",
+                                "/actuator/health/**",
+                                "/actuator/metrics",
+                                "/actuator/metrics/**",
+                                "/actuator/prometheus"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 );
 

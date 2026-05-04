@@ -64,5 +64,13 @@ public class ProjectController {
         Job job = jobService.createReportJob(id, tenantId, request);
         return new ResponseEntity<>(job, HttpStatus.ACCEPTED);
     }
+
+    @GetMapping("/{projectId}/jobs/{jobId}")
+    public ResponseEntity<Job> getJobStatus(
+            @PathVariable Long projectId,
+            @PathVariable Long jobId) {
+        Job job = jobService.getJobStatus(jobId);
+        return ResponseEntity.ok(job);
+    }
 }
 

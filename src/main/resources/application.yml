@@ -14,24 +14,26 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
+  
   rabbitmq:
-    host: ${SPRING_RABBITMQ_HOST:localhost}
-    port: ${SPRING_RABBITMQ_PORT:5672}
-    username: ${SPRING_RABBITMQ_USERNAME:guest}
-    password: ${SPRING_RABBITMQ_PASSWORD:guest}
-
-  jackson:
-    serialization:
-      write-dates-as-timestamps: false
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, info, metrics, prometheus
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        auto-startup: true
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          multiplier: 2.0
+        default-requeue-rejected: false
 
 workhub:
   jwt:
-    secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+    secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
     expiration: 86400000
+
+server:
+  port: ${SERVER_PORT:8080}

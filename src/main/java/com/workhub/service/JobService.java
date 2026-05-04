@@ -6,6 +6,7 @@ import com.workhub.model.Job;
 import com.workhub.model.JobStatus;
 import com.workhub.repository.JobRepository;
 import com.workhub.config.RabbitConfig;
+import com.workhub.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,8 @@ public class JobService {
     private final RabbitTemplate rabbitTemplate;
 
     @Transactional
-    public Job createReportJob(Long projectId, String tenantId, JobRequest request) {
+    public Job createReportJob(Long projectId, JobRequest request) {
+        String tenantId = TenantContext.getTenantId();
         Job job = new Job();
         job.setTenantId(tenantId);
         job.setStatus(JobStatus.PENDING);
@@ -36,7 +38,8 @@ public class JobService {
         return savedJob;
     }
 
-    public Job getJobStatus(Long jobId, String tenantId) {
+    public Job getJobStatus(Long jobId) {
+        String tenantId = TenantContext.getTenantId();
         return jobRepository.findByIdAndTenantId(jobId, tenantId)
                 .orElseThrow(() -> new RuntimeException("Job not found or access denied"));
     }

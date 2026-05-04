@@ -2,6 +2,7 @@ package com.workhub.observability;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
@@ -27,9 +28,12 @@ import static org.assertj.core.api.Assertions.assertThat;
                 "logging.level.org.springframework=WARN",
                 "logging.level.org.hibernate.SQL=WARN",
                 "management.endpoint.health.probes.enabled=true",
-                "management.health.rabbit.enabled=false"
+                "management.health.rabbit.enabled=false",
+                "management.endpoints.web.exposure.include=health,metrics,prometheus",
+                "management.endpoint.prometheus.enabled=true"
         }
 )
+@AutoConfigureObservability
 class ActuatorEndpointsIntegrationTest {
 
     private static final ParameterizedTypeReference<Map<String, Object>> HEALTH_RESPONSE_TYPE =
@@ -59,6 +63,22 @@ class ActuatorEndpointsIntegrationTest {
         ResponseEntity<Map<String, Object>> response = getHealthEndpoint("/actuator/health/liveness");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void prometheusEndpointExposesMetrics() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/actuator/prometheus", String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).contains("jvm_info");
+    }
+
+    @Test
+    void actuatorResponsesIncludeCorrelationId() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/actuator/health", String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getFirst(CorrelationIdFilter.CORRELATION_ID_HEADER)).isNotBlank();
     }
 
     private ResponseEntity<Map<String, Object>> getHealthEndpoint(String path) {

@@ -24,6 +24,7 @@ public class ProjectController {
     private final JobService jobService;
 
     @PostMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('TENANT_ADMIN')")
     public ResponseEntity<Project> createProject(@Valid @RequestBody Project p) {
         Project createdProj = projectService.createProject(p);
         return new ResponseEntity<>(createdProj, HttpStatus.CREATED);
@@ -49,6 +50,7 @@ public class ProjectController {
     }
 
     @PostMapping("/with-tasks")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('TENANT_ADMIN')")
     public ResponseEntity<Project> createProjectWithTasks(@Valid @RequestBody ProjectCreationRequest request) {
 
         Project createdProject = projectService.createProjectWithTasks(request.getProject(), request.getTasks());
@@ -59,6 +61,7 @@ public class ProjectController {
     public ResponseEntity<Job> generateReport(
             @PathVariable Long id,
             @RequestBody JobRequest request) {
+
         projectService.getProjectById(id)
                 .orElseThrow(() -> new com.workhub.exception.ResourceNotFoundException("Project not found"));
 

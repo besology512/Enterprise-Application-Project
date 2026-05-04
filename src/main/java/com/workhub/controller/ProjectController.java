@@ -11,6 +11,7 @@ import com.workhub.model.Task;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import jakarta.validation.Valid;
@@ -43,6 +44,7 @@ public class ProjectController {
         return ResponseEntity.ok(project);
     }
 
+    @PreAuthorize("hasRole('TENANT_ADMIN')")
     @PostMapping("/{id}/tasks")
     public ResponseEntity<Task> createTaskforProject(@PathVariable Long id, @Valid @RequestBody Task task) {
         Task createdTask = taskService.createTask(id, task);
@@ -57,6 +59,7 @@ public class ProjectController {
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('TENANT_ADMIN')")
     @PostMapping("/{id}/generate-report")
     public ResponseEntity<Job> generateReport(
             @PathVariable Long id,
@@ -69,9 +72,8 @@ public class ProjectController {
         return new ResponseEntity<>(job, HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/{projectId}/jobs/{jobId}")
+    @GetMapping("/jobs/{jobId}")
     public ResponseEntity<Job> getJobStatus(
-            @PathVariable Long projectId,
             @PathVariable Long jobId) {
         Job job = jobService.getJobStatus(jobId);
         return ResponseEntity.ok(job);

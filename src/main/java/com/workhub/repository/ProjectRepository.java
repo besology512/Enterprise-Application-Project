@@ -10,7 +10,6 @@ import java.util.Optional;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
-    // equals SELECT * FROM projects WHERE tenant_id = ?
     List<Project> findByTenantId(String tenantId);
 
     Optional<Project> findByIdAndTenantId(Long id, String tenantId);

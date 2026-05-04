@@ -26,7 +26,6 @@ public class TaskService {
         Task existingTask = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-        // STRICT TENANT ISOLATION CHECK
         if (!existingTask.getProject().getTenantId().equals(TenantContext.getTenantId())) {
             throw new TenantAccessException("Access Denied: This task belongs to another tenant.");
         }

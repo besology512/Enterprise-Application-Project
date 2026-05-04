@@ -1,4 +1,4 @@
-package com.workhub.model; // Updated to your folder structure
+package com.workhub.model;
 
 import jakarta.persistence.*;
 import lombok.*;

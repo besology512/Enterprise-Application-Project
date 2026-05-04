@@ -22,7 +22,6 @@ public class TenantFilter extends OncePerRequestFilter {
     private final JwtProvider tokenProvider;
     private final UserDetailsService userDetailsService;
 
-    // Using constructor injection so Maven/Lombok doesn't crash!
     public TenantFilter(JwtProvider tokenProvider, UserDetailsService userDetailsService) {
         this.tokenProvider = tokenProvider;
         this.userDetailsService = userDetailsService;
@@ -35,12 +34,9 @@ public class TenantFilter extends OncePerRequestFilter {
             String jwt = getJwtFromRequest(request);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-
-                // 1. Get the user's email and tenantId from the token
                 String email = tokenProvider.getUsernameFromToken(jwt);
                 Long tenantIdLong = tokenProvider.getTenantIdFromToken(jwt);
 
-                // 2. Tell Spring Security this user is logged in
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
@@ -48,7 +44,6 @@ public class TenantFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                // 3. Set your specific Tenant Context (Converting his Long to your String)
                 if (tenantIdLong != null) {
                     TenantContext.setTenantId(String.valueOf(tenantIdLong));
                 }
@@ -60,7 +55,6 @@ public class TenantFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } finally {
-            // Clean up the thread
             TenantContext.clear();
         }
     }

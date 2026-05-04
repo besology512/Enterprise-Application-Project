@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
@@ -30,12 +32,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 )
 class ActuatorEndpointsIntegrationTest {
 
+    private static final ParameterizedTypeReference<Map<String, Object>> HEALTH_RESPONSE_TYPE =
+            new ParameterizedTypeReference<>() {
+            };
+
     @Autowired
     private TestRestTemplate restTemplate;
 
     @Test
     void healthEndpointReturnsOkAndUpStatus() {
-        ResponseEntity<Map> response = restTemplate.getForEntity("/actuator/health", Map.class);
+        ResponseEntity<Map<String, Object>> response = getHealthEndpoint("/actuator/health");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).containsEntry("status", "UP");
@@ -43,15 +49,19 @@ class ActuatorEndpointsIntegrationTest {
 
     @Test
     void readinessEndpointIsAccessible() {
-        ResponseEntity<Map> response = restTemplate.getForEntity("/actuator/health/readiness", Map.class);
+        ResponseEntity<Map<String, Object>> response = getHealthEndpoint("/actuator/health/readiness");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
     void livenessEndpointIsAccessible() {
-        ResponseEntity<Map> response = restTemplate.getForEntity("/actuator/health/liveness", Map.class);
+        ResponseEntity<Map<String, Object>> response = getHealthEndpoint("/actuator/health/liveness");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    private ResponseEntity<Map<String, Object>> getHealthEndpoint(String path) {
+        return restTemplate.exchange(path, HttpMethod.GET, null, HEALTH_RESPONSE_TYPE);
     }
 }

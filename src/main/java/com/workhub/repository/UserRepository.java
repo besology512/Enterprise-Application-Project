@@ -1,6 +1,6 @@
 package com.workhub.repository;
 
-import com.workhub.domain.User;
+import com.workhub.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

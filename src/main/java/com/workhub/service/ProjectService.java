@@ -1,6 +1,5 @@
 package com.workhub.service;
 
-import com.workhub.exception.TenantAccessException;
 import com.workhub.model.Project;
 import com.workhub.model.Task;
 import com.workhub.repository.ProjectRepository;

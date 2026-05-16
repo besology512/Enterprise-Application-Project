@@ -65,10 +65,3 @@ BUILD SUCCESS
 
 One RabbitMQ Testcontainers test may be skipped locally if Docker is not available to Maven. The non-skipped idempotency test still proves the messaging reliability behavior.
 
-## Quick Defense Notes
-
-- Tenant isolation returns `404` so users cannot know another tenant's resource exists.
-- Concurrency is protected with `@Version` on `Task`.
-- Duplicate consumed messages are blocked by the `processed_messages` table.
-- Lost producer messages are prevented by the `outbox_messages` table.
-- The tests are integration tests because they start Spring and test real services, repositories, transactions, filters, and messaging behavior.

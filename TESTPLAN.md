@@ -33,14 +33,42 @@ In GitHub Actions, the CI pipeline runs tests before building the Docker image.
 | RabbitMQ integration | The report message can also be tested through RabbitMQ/Testcontainers when Docker is available. | `MessagingReliabilityIntegrationTest` |
 | Observability | Health, readiness, liveness, Prometheus metrics, and correlation IDs are available. | `ActuatorEndpointsIntegrationTest` |
 
+## Bonus: Outbox Pattern
+
+I also added the **outbox pattern** for the bonus requirement.
+
+Before this, `JobService` saved the report job and immediately tried to publish to RabbitMQ. That is risky because the database save can succeed while RabbitMQ publishing fails.
+
+Now the flow is:
+
+1. Save the report job.
+2. Save an `outbox_messages` row in the same database transaction.
+3. A scheduled publisher reads pending outbox rows.
+4. The publisher sends the saved payload to RabbitMQ.
+5. If publishing works, the row becomes `PUBLISHED`.
+6. If publishing fails, the row stays `PENDING` and records the error so it can be retried.
+
+| Bonus area | What we prove | Test class |
+|---|---|---|
+| Outbox producer reliability | Creating a report job stores a pending outbox message in the same database transaction. | `OutboxPatternIntegrationTest` |
+| Outbox publish success | The publisher sends a pending message to RabbitMQ and marks it `PUBLISHED`. | `OutboxPatternIntegrationTest` |
+| Outbox retry behavior | If RabbitMQ publishing fails, the message stays `PENDING` for retry. | `OutboxPatternIntegrationTest` |
 
 ## Expected Result
 
 A successful local run should end with:
 
 ```text
-Tests run: 29, Failures: 0, Errors: 0
+Tests run: 32, Failures: 0, Errors: 0
 BUILD SUCCESS
 ```
 
 One RabbitMQ Testcontainers test may be skipped locally if Docker is not available to Maven. The non-skipped idempotency test still proves the messaging reliability behavior.
+
+## Quick Defense Notes
+
+- Tenant isolation returns `404` so users cannot know another tenant's resource exists.
+- Concurrency is protected with `@Version` on `Task`.
+- Duplicate consumed messages are blocked by the `processed_messages` table.
+- Lost producer messages are prevented by the `outbox_messages` table.
+- The tests are integration tests because they start Spring and test real services, repositories, transactions, filters, and messaging behavior.

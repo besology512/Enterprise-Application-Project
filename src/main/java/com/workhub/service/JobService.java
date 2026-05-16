@@ -5,10 +5,8 @@ import com.workhub.dto.JobRequest;
 import com.workhub.model.Job;
 import com.workhub.model.JobStatus;
 import com.workhub.repository.JobRepository;
-import com.workhub.config.RabbitConfig;
 import com.workhub.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class JobService {
     private final JobRepository jobRepository;
-    private final RabbitTemplate rabbitTemplate;
+    private final OutboxService outboxService;
 
     @Transactional
     public Job createReportJob(Long projectId, JobRequest request) {
@@ -29,11 +27,7 @@ public class JobService {
         Job savedJob = jobRepository.save(job);
         JobPayload payload = new JobPayload(savedJob.getId(), tenantId, projectId);
 
-        rabbitTemplate.convertAndSend(
-                RabbitConfig.EXCHANGE,
-                RabbitConfig.ROUTING_KEY,
-                payload
-        );
+        outboxService.enqueueReportJob(payload);
 
         return savedJob;
     }

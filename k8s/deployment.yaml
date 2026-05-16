@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workhub-app
+  labels:
+    app: workhub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: workhub
+  template:
+    metadata:
+      labels:
+        app: workhub
+    spec:
+      containers:
+        - name: workhub-app
+          image: workhub-app:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: workhub-config
+            - secretRef:
+                name: workhub-secret
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10

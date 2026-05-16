@@ -20,6 +20,9 @@ public class Task {
     @Column(nullable = false)
     private String title;
 
+    @Column(nullable = false)
+    private String tenantId;
+
     @NotBlank(message = "Task description is required")
     @Column(nullable = false)
     private String description;
@@ -33,4 +36,7 @@ public class Task {
     @JoinColumn(name = "project_id", nullable = false)
     @JsonIgnore
     private Project project;
+
+    @Version
+    private Long version;
 }

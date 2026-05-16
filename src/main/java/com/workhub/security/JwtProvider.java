@@ -23,9 +23,14 @@ public class JwtProvider {
     public String generateToken(Authentication authentication, Long tenantId) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
 
+        java.util.List<String> roles = userPrincipal.getAuthorities().stream()
+                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                .collect(java.util.stream.Collectors.toList());
+
         return Jwts.builder()
                 .subject(userPrincipal.getUsername())
                 .claim("tenantId", tenantId)
+                .claim("roles", roles)
                 .issuedAt(new Date())
                 .expiration(new Date(new Date().getTime() + jwtExpirationInMs))
                 .signWith(getSigningKey())

@@ -1,20 +1,26 @@
 spring:
   application:
     name: workhub-saas
+
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/workhub}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    url: jdbc:postgresql://localhost:5432/workhub_test
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: create-drop
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  
+        format_sql: false
+
   rabbitmq:
     host: localhost
     port: 5672
@@ -25,9 +31,9 @@ spring:
         auto-startup: true
         retry:
           enabled: true
-          initial-interval: 1000
+          initial-interval: 500
           max-attempts: 3
-          multiplier: 2.0
+          multiplier: 1.5
         default-requeue-rejected: false
 
 workhub:
@@ -36,7 +42,7 @@ workhub:
     expiration: 86400000
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: 8081
 
 management:
   endpoints:
@@ -45,16 +51,7 @@ management:
         include: health,metrics,prometheus
   endpoint:
     health:
-      probes:
-        enabled: true
       show-details: always
   health:
-    livenessstate:
-      enabled: true
-    readinessstate:
-      enabled: true
     rabbit:
-      enabled: false
-  metrics:
-    tags:
-      application: ${spring.application.name}
+      enabled: true

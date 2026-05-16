@@ -60,6 +60,16 @@ public class GlobalExceptionHandler {
                 HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler({
+            org.springframework.orm.ObjectOptimisticLockingFailureException.class,
+            jakarta.persistence.OptimisticLockException.class
+    })
+    public ResponseEntity<Map<String, Object>> handleOptimisticLockingExceptions(Exception ex) {
+        return new ResponseEntity<>(
+                buildErrorResponse(HttpStatus.CONFLICT, "Concurrent update detected. Please reload and retry."),
+                HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericExceptions(Exception ex) {
         log.error("Unhandled application exception", ex);

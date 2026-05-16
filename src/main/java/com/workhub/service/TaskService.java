@@ -6,6 +6,7 @@ import com.workhub.model.Task;
 import com.workhub.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.workhub.tenant.TenantContext;
 
 @Service
@@ -26,6 +27,7 @@ public class TaskService {
         return taskRepository.findByTenantId(TenantContext.getTenantId());
     }
 
+    @Transactional
     public Task updateTask(Long taskId, Task taskUpdates) {
         String currentTenant = TenantContext.getTenantId();
         Task existingTask = taskRepository.findByIdAndTenantId(taskId, currentTenant)

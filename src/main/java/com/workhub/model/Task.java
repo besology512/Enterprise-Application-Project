@@ -36,4 +36,7 @@ public class Task {
     @JoinColumn(name = "project_id", nullable = false)
     @JsonIgnore
     private Project project;
+
+    @Version
+    private Long version;
 }

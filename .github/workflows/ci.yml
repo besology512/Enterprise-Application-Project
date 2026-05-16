@@ -129,7 +129,7 @@ jobs:
 
       - name: Write image digest to summary
         run: |
-          echo "### Docker Image Published 🐳" >> $GITHUB_STEP_SUMMARY
+          echo "### Docker Image Published" >> $GITHUB_STEP_SUMMARY
           echo "| Tag | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-|-|" >> $GITHUB_STEP_SUMMARY
           echo "| latest | \`${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:latest\` |" >> $GITHUB_STEP_SUMMARY

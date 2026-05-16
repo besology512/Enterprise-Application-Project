@@ -7,10 +7,10 @@ This backend exposes Spring Boot Actuator health and metrics endpoints, plus req
 | Endpoint | Purpose |
 | --- | --- |
 | `/actuator/health` | Overall application health. Expected status is `UP`. |
+| `/actuator/prometheus` | Prometheus-formatted Micrometer metrics. |
 | `/actuator/health/readiness` | Readiness probe for checking whether the app can receive traffic. |
 | `/actuator/health/liveness` | Liveness probe for checking whether the app process is alive. |
-| `/actuator/metrics` | Micrometer metrics index. |
-| `/actuator/prometheus` | Prometheus-formatted Micrometer metrics. |
+| `http://localhost:16686` | Jaeger UI for viewing distributed traces. |
 
 The Actuator health and metrics endpoints are public so monitoring tools can call them without a JWT. Business endpoints remain protected by the existing security rules.
 
@@ -61,9 +61,16 @@ curl.exe -I http://localhost:8080/actuator/health -H "X-Correlation-ID: demo-cor
 
 Expected result:
 
-```text
 X-Correlation-ID: demo-correlation-id
 ```
+
+## Verify Tracing (Jaeger)
+
+1. Start the infrastructure: `docker-compose up -d`
+2. Send some requests to the app (e.g., call `/actuator/health`).
+3. Open Jaeger UI at `http://localhost:16686`.
+4. Select `workhub-saas` service and click "Find Traces".
+5. You should see traces for the requests you made.
 
 Check logs when running with Docker:
 
